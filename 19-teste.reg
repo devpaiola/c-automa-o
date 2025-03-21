@@ -1,7 +1,0 @@
-Windows Registry Editor Version 5.00
-          ; Arquivo gerado em 21/03/2025 12:26 pelo usuário Fabricio
-          [HKEY_CURRENT_USER\Software\SmartComputadores\SmartMonitor]
-          "id"="19" ; teste
-          "authmonitor"="88fcfee041ab576276899b031e392e56"
-          "pass"="03a8014ff094aa7a6ffa385330a29ec0"
-          "user"="workmonitor_teste"
