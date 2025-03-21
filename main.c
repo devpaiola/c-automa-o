@@ -31,7 +31,7 @@ int ImportRegFiles() {
                 strcpy(cmd, "/s ");
                 strcat(cmd, regFile);
                 
-                ShellExecute(NULL, "open", "regedit.exe", cmd, NULL, SW_HIDE);
+                ShellExecute(NULL, "open", "regedit.exe", cmd, NULL, SW_HIDE); 
             }
         } while (FindNextFileA(hFind, &findFileData));
         FindClose(hFind);
@@ -75,10 +75,10 @@ int main() {
     if (!regImportSuccess) {
         HWND hwnd = FindWindowByTitle("Dados da Conta");
         while (hwnd == NULL || GetForegroundWindow() != hwnd) {
-            Sleep(2000); // Espera 2 segundos antes de verificar novamente
+            Sleep(2000); 
             hwnd = FindWindowByTitle("Dados da Conta");
         }
-        InserirCredenciais();  // Inserir credenciais se a importação falhar após a instalação e a janela estiver ativa
+        InserirCredenciais();
     }
 
     return 0;
